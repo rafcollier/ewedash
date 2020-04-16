@@ -1,0 +1,50 @@
+﻿@page "/googlemail"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System.Globalization
+@using System;
+@using System.Collections.Generic;
+@using System.IO;
+@using System.Linq;
+@using System.Text;
+@using System.Threading;
+@using System.Threading.Tasks;
+@using Google.Apis.Auth.OAuth2;
+@using Google.Apis.Calendar.v3;
+@using Google.Apis.Calendar.v3.Data;
+@using Google.Apis.Services;
+@using Google.Apis.Util.Store;
+@using Google.Apis.Gmail.v1.Data;
+
+@inject GoogleMailService googMailService
+
+<h3 style="text-align:center; color:@_fontColor">Gmail</h3>
+<hr />
+
+@if (_googMailCount == 0)
+{
+    <img src="images/mail.png" width="160" class="center">
+}
+else
+{
+    <h1 style="text-align:center; font-size:60px">
+        @_googMailCount
+    </h1>
+    <p style="text-align:center; color:@_fontColor">New Unread Messages</p>
+
+}
+
+@code {
+
+    private String _fontColor = "black";
+    private String _appName = "ewe-dash";
+    private UserCredential _googMailCred;
+    private int _googMailCount = 0;
+
+    protected override void OnInitialized()
+    {
+        _googMailCred = googMailService.getGmailCred();
+        _googMailCount = googMailService.getGmailData(_appName, _googMailCred);
+    }
+}

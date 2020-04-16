@@ -1,0 +1,68 @@
+﻿@page "/googlecalendar"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System;
+@using System.Collections.Generic;
+@using Google.Apis.Auth.OAuth2;
+@using Google.Apis.Calendar.v3.Data;
+
+@inject GoogleCalendarService googCalService
+
+<h3 style="text-align:center; color:@_fontColor">Google Calendar</h3>
+<hr />
+
+
+@if (calItemList.Count < 1)
+{
+    <img src="images/calendar.png" width="160" class="center">
+}
+else
+{
+    @foreach (var item in calItemList)
+    {
+        <p style="color:@_fontColor; text-align:center">
+            @item.Date - @item.Summary<br>
+        </p>
+    }
+}
+
+@code {
+
+    private String _fontColor = "black";
+    private String _appName = "ewe-dash";
+    private UserCredential _googCalCred;
+    private Events _googCalEvents;
+    private List<GoogleCalendarModel> calItemList = new List<GoogleCalendarModel>();
+
+    protected override void OnInitialized()
+    {
+        _googCalCred = googCalService.getGoogleCalCred();
+        _googCalEvents = googCalService.getCalendarData(_appName, _googCalCred);
+
+        if (_googCalEvents.Items.Count > 0 && _googCalEvents.Items != null)
+        {
+            foreach (var eventItem in _googCalEvents.Items)
+            {
+                GoogleCalendarModel calItem = new GoogleCalendarModel()
+                {
+                    Summary = "",
+                    Date = ""
+                };
+
+                if (eventItem.Summary != null)
+                {
+                    calItem.Summary = eventItem.Summary;
+                }
+
+                if (eventItem.Start.DateTime != null)
+                {
+                    calItem.Date = eventItem.Start.DateTime.Value.ToString("h:mm tt"); ;
+                }
+
+                calItemList.Add(calItem);
+
+            }
+        }
+    }
+}

@@ -1,0 +1,49 @@
+﻿@page "/octranspo"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System.Globalization
+@using RestSharp
+@using Newtonsoft.Json
+
+@inject OCTranspoService ocTranspoService
+
+<h3 style="text-align:center; color:@_fontColor">Eagleson-Tunney 61</h3>
+<hr />
+
+@foreach (var item in _tripTimes)
+{
+    <p style="text-align:center">
+        @item
+    </p>
+}
+
+
+@code {
+
+    private OCTranspoModel _octranspo = new OCTranspoModel();
+    private List<TripObjects> _trip = new List<TripObjects>();
+    private List<String> _tripTimes = new List<String>();
+    private String _fontColor = "black";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var getOCTranspo = await ocTranspoService.GetOCTranspoAsync();
+        _octranspo = JsonConvert.DeserializeObject<OCTranspoModel>(getOCTranspo.Content);
+        foreach (var item in _octranspo.GetNextTripsForStopResult.Route.RouteDirection[0].Trips.Trip)
+        {
+            _trip.Add(item);
+        }
+        foreach (var item in _trip)
+        {
+            var startTime = DateTime.Parse(item.TripStartTime).ToString("h:mm tt");
+            _tripTimes.Add(startTime);
+        }
+    }
+
+
+
+
+}
+
+

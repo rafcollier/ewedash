@@ -1,0 +1,22 @@
+﻿@page "/current_time"
+
+<h3 style="text-align:center">Time</h3>
+<hr />
+
+@if (@_time == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <br />
+    <h1 style="text-align:center; font-size:60px">
+        @_time
+    </h1>
+}
+
+@code {
+
+    private String _time = DateTime.Now.ToString("h:mm tt");
+
+}

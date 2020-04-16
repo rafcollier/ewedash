@@ -1,0 +1,40 @@
+﻿@using System.Globalization
+
+<body style="background-color:@_backgroundColor">
+
+<h1 style="font-style:@_headingFontStyle">@_headingText</h1>
+
+<form>
+
+    <div>
+        <input type="checkbox" id="italicsCheck" @bind="_italicsCheck" />
+        <label class="form-check-label" for="italicsCheck">Use Italics</label>
+    </div>
+    <div>
+        <input type="checkbox" id="colorCheck" @bind="_colorCheck" />
+        <label class="form-check-label" for="colorCheck">Change color</label>
+    </div>
+
+    <button type="button" class="btn btn-primary" @onclick="UpdateHeading">Update Heading</button>
+
+</form>
+
+</body>
+
+
+@code {
+
+    private static TextInfo _tinfo = CultureInfo.CurrentCulture.TextInfo;
+    private string _headingText = _tinfo.ToTitleCase("weclome to blazor");
+    private string _headingFontStyle = "normal";
+    private string _backgroundColor = "white";
+    private bool _italicsCheck = false;
+    private bool _colorCheck = false;
+
+    public void UpdateHeading()
+    {
+        _headingFontStyle = _italicsCheck ? "italic" : "normal";
+        _backgroundColor = _colorCheck ? "red" : "white";
+    }
+
+}

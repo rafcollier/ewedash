@@ -1,0 +1,53 @@
+﻿@page "/schoolbus"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System.Globalization
+
+@inject SchoolBusService schoolBusService
+
+<h3 style="text-align:center">School Bus</h3>
+<hr />
+
+@if (_cancel != null && _cancel.Count > 0)
+{
+   @foreach (var item in _cancel)
+   { 
+       <p>
+           @item.Created_at - @item.Text
+       </p>
+   }
+}
+else
+{
+    <img src="images/schoolbus.png" width="160" class="center">
+}
+
+@code {
+
+    private List<SchoolBusModel> _cancel = new List<SchoolBusModel>();
+    private String _tweet = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await schoolBusService.GetSchoolBusInfoAsync();
+        if (data != null && data.Count > 0)
+        {
+            foreach (var item in data)
+            {
+                _tweet = item.Text.ToString();
+                bool contains = _tweet.IndexOf("cancel", StringComparison.OrdinalIgnoreCase) >= 0;
+                Console.WriteLine(_tweet);
+
+                if (contains)
+                {
+                    var twitterObject = new SchoolBusModel();
+                    twitterObject.Created_at = DateTime.ParseExact(item.Created_at, "ddd MMM dd HH:mm:ss zzzz yyyy", CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.AssumeUniversal).ToString("MMMM dd");
+                    twitterObject.Text = _tweet.Substring(0, 120);
+
+                    _cancel.Add(twitterObject);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,63 @@
+﻿@page "/localweather"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System.Globalization
+
+@inject LocalWeatherService localWeatherService
+
+<h3 style="text-align:center; color:@_fontColor">Weather</h3>
+<hr />
+
+@if (@_localWeather == null)
+{
+    <p style="color:@_fontColor">Loading...</p>
+}
+else
+{
+    <img class="center" src="@_iconUrl" height="40" width="40" />
+    <br />
+    <p style="color:@_fontColor; text-align:center">
+        Temperature: @_temperature &#8451<br>
+        Feels Like: @_feels_like &#8451<br>
+        @_description<br>
+    </p>
+}
+
+@code {
+
+    private LocalWeatherModel _localWeather = null;
+    private String _fontColor = "black";
+    private String _iconUrl = "http://openweathermap.org/img/w/";
+    private int _temperature;
+    private int _feels_like;
+    private string _description;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _localWeather = await localWeatherService.GetWeatherAsync();
+        _iconUrl += _localWeather.Weather[0].Icon + ".png";
+        _temperature = KelvinToCelsius(_localWeather.Main.Temp);
+        _feels_like = KelvinToCelsius(_localWeather.Main.Feels_like);
+
+        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+        _description = textInfo.ToTitleCase(_localWeather.Weather[0].Description.ToLower());
+
+        List<String> badWeather = new List<String>();
+        badWeather.Add("Heavy Snow");
+        badWeather.Add("Thunderstorm");
+        badWeather.Add("Freezing Rain");
+       // badWeather.Add("Scattered Clouds");
+
+        if (badWeather.Contains(_description))
+        {
+            _fontColor = "red";
+        }
+    }
+
+    private int KelvinToCelsius(float temp)
+    {
+        return (int)Math.Ceiling(temp - 273.15);
+    }
+
+}

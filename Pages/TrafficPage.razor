@@ -1,0 +1,55 @@
+﻿@page "/traffic"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System.Globalization
+@using System
+
+@inject TrafficService trafficService
+
+<h3 style="text-align:center">Traffic</h3>
+<hr />
+
+@if (_traffic != null && _traffic.Count > 0)
+{
+    <p>
+        @_traffic[0].Text;
+    </p>
+}
+else
+{
+    <img src="images/traffic.png" width="160" class="center">
+}
+
+
+@code {
+
+    private List<TrafficModel> _traffic = new List<TrafficModel>();
+    private String _tweet = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await trafficService.GetTrafficInfoAsync();
+        if (data != null && data.Count > 0)
+        {
+            foreach (var item in data)
+            {
+                _tweet = item.Text.ToString();
+                bool contains =
+                    _tweet.ToLower().Contains("march") ||
+                    _tweet.ToLower().Contains("417") ||
+                    _tweet.ToLower().Contains("carling") ||
+                    _tweet.ToLower().Contains("queensway");
+
+                if (contains)
+                {
+
+                    var twitterObject = new TrafficModel();
+                    twitterObject.Text = _tweet;
+                    _traffic.Add(twitterObject);
+
+                }
+            }
+        }
+    }
+}

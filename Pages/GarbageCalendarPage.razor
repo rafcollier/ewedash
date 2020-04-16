@@ -1,0 +1,67 @@
+﻿@page "/garbagecalendar"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System;
+@using Google.Apis.Auth.OAuth2;
+@using Google.Apis.Calendar.v3.Data;
+
+@inject GarbageCalendarService garbageCalService
+@inject GoogleCalendarService googCalService
+
+<h3 style="text-align:center">Garbage Pickup</h3>
+<hr />
+
+@if (_event == null)
+{
+    <img src="images/garbage.png" width="160" class="center">
+}
+else
+{
+    <p style="@_style">
+        @calItem.Summary<br>
+        </p>
+}
+
+@code {
+
+    private String _style = "";
+    private String _appName = "ewe-dash";
+    private UserCredential _googCalCred;
+    private Events _garbageCalEvents;
+    private Event _event = null;
+    private GoogleCalendarModel calItem = new GoogleCalendarModel()
+    {
+        Summary = "",
+        Date = ""
+    };
+
+    protected override void OnInitialized()
+    {
+        _googCalCred = googCalService.getGoogleCalCred();
+        _garbageCalEvents = garbageCalService.getGarbageCalendar(_appName, _googCalCred);
+
+        if (_garbageCalEvents.Items.Count > 0 && _garbageCalEvents.Items[0] != null)
+        {
+            _event = _garbageCalEvents.Items[0];
+
+            if (_event.Summary != null)
+            {
+                calItem.Summary = _event.Summary;
+                Console.WriteLine(calItem.Summary);
+            }
+            if (_event.Start.Date != null)
+            {
+                var today = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                calItem.Date = _event.Start.Date.ToString();
+
+                if (today == calItem.Date)
+                //if (calItem.Date == calItem.Date)
+                {
+                    _style = "color:red; font-weight:bold; font-size:25px";
+                }
+
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+﻿@page "/netflix"
+
+@using EweDash.Services
+@using EweDash.Models
+@using System.Globalization
+@using RestSharp
+@using Newtonsoft.Json
+
+@inject NetflixService netflixService
+
+<h3 style="text-align:center; color:@_fontColor">New on Netflix</h3>
+<hr />
+@foreach(var item in _netflixMovies)
+{
+    <p>@item.Title</p>
+}
+
+
+@code {
+
+    private NetflixModel _newNetflix = new NetflixModel();
+    private List<String> _titles = new List<String>();
+    private List<NetflixObject> _netflixObjects = new List<NetflixObject>();
+    private List<NetflixObject> _netflixMovies = new List<NetflixObject>();
+    private String _fontColor = "black";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var getNetflix = await netflixService.GetNetflixAsync();
+        _newNetflix = JsonConvert.DeserializeObject<NetflixModel>(getNetflix.Content);
+        foreach(var item in _newNetflix.Items)
+        {
+            if (item.Type == "movie" && item.Released == "2020")
+            {
+                _netflixObjects.Add(item);
+            }
+        }
+        _netflixMovies = _netflixObjects.GetRange(0, 3);
+    }
+}
